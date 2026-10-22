@@ -27,10 +27,13 @@
 - **Instagram Intelligence**:
   - Retrieves profile metadata: full name, biography, verified badge status, account privacy status (`is_private`), post count, and follower/following metrics.
   - Extracts latest activity (post/video links and approximate timestamp resolved from Instagram snowflake IDs).
-- **LinkedIn Intelligence (Cookie-Free)**:
-  - Gathers public intelligence without requiring user credentials, session cookies, or authenticated sessions.
+- **LinkedIn Intelligence**:
+  - Gathers public intelligence.
   - Extracts profile information: full name, headline, current company (`worksFor`), location, education (`alumniOf`), follower count, connection count, and public profile URL.
   - Retrieves latest public activity (posts or published articles, publication time, and article/post URL) via structured Schema.org JSON-LD parsing.
+- **Facebook Intelligence**:
+  - Gathers public intelligence from public Facebook profiles and pages.
+  - Extracts full name, bio/about section, follower count, "talking about" metrics, and canonical URL via link-preview metadata.
 - **Dual Output Streaming**:
   - Mirror scan results simultaneously to stdout and to an output file using the `-o` argument.
 - **Clean CLI Interface**:
@@ -53,9 +56,10 @@ osint-master/
     │   └── options.go            # Argument extraction and parsing logic
     └── tools/
         └── socialmedia/
+            ├── facebook.go       # Public Facebook intelligence collector
             ├── github.go         # GitHub profile and event collector
             ├── instagram.go      # Instagram profile scraper and parser
-            ├── linkedin.go       # Cookie-free public LinkedIn intelligence collector
+            ├── linkedin.go       # Public LinkedIn intelligence collector
             └── socialmedia.go    # Subcommand handler for 'username'
 ```
 
@@ -106,6 +110,7 @@ osintmaster [COMMAND] ...args
 ```
 
 #### Global Arguments:
+
 - `-o <FileName>`: Mirror console output to the specified file.
 - `--help`: Display usage and help message.
 
@@ -163,6 +168,14 @@ Last Activity:
  Type: Article
  Time: 2026-10-21 20:41:14 +0000 +00
  URL: https://www.linkedin.com/pulse/my-annual-letter-building-frontier-ecosystem-satya-nadella-iujec
+
+  - Facebook -
+Username: zuck
+Name: Mark Zuckerberg
+Bio: Bringing the world closer together.
+Followers: 121,490,453
+Talking About: 1,073,805
+URL: https://www.facebook.com/zuck/
 ```
 
 ---
@@ -182,7 +195,8 @@ To save the scan results directly to a file while retaining terminal visibility:
 - [x] **`username`**: Social media profiling
   - [x] GitHub
   - [x] Instagram
-  - [x] LinkedIn (Public, cookie-free)
+  - [x] LinkedIn
+  - [x] Facebook
   - [ ] Twitter / X
   - [ ] Reddit
   - [ ] GitLab

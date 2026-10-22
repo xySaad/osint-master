@@ -40,4 +40,6 @@ func ByUsername() {
 	InstagramByUsername(username)
 	fmt.Println()
 	LinkedinByUsername(username)
+	fmt.Println()
+	FacebookByUsername(username)
 }
