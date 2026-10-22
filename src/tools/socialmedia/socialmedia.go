@@ -38,4 +38,6 @@ func ByUsername() {
 	GithubByUsername(username)
 	fmt.Println()
 	InstagramByUsername(username)
+	fmt.Println()
+	LinkedinByUsername(username)
 }

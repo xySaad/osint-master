@@ -1,6 +1,6 @@
 # OSINT Master
 
-**OSINT Master** (`osintmaster`) is a modular Open Source Intelligence (OSINT) command-line tool written in Go. It is designed to assist security analysts, penetration testers, and investigators in gathering publicly available information across platforms, starting with social media profile reconnaissance and activity tracking.
+**OSINT Master** (`osintmaster`) is a modular Open Source Intelligence (OSINT) command-line tool written in Go. It is designed to assist security analysts, penetration testers, and investigators in gathering publicly available information across platforms, including social media profile reconnaissance and activity tracking.
 
 ---
 
@@ -15,6 +15,7 @@
   - [Username Reconnaissance (`username`)](#username-reconnaissance-username)
   - [File Output (`-o`)](#file-output--o)
 - [Roadmap & Planned Modules](#roadmap--planned-modules)
+- [Disclaimer & Ethical Use](#disclaimer--ethical-use)
 
 ---
 
@@ -26,6 +27,10 @@
 - **Instagram Intelligence**:
   - Retrieves profile metadata: full name, biography, verified badge status, account privacy status (`is_private`), post count, and follower/following metrics.
   - Extracts latest activity (post/video links and approximate timestamp resolved from Instagram snowflake IDs).
+- **LinkedIn Intelligence (Cookie-Free)**:
+  - Gathers public intelligence without requiring user credentials, session cookies, or authenticated sessions.
+  - Extracts profile information: full name, headline, current company (`worksFor`), location, education (`alumniOf`), follower count, connection count, and public profile URL.
+  - Retrieves latest public activity (posts or published articles, publication time, and article/post URL) via structured Schema.org JSON-LD parsing.
 - **Dual Output Streaming**:
   - Mirror scan results simultaneously to stdout and to an output file using the `-o` argument.
 - **Clean CLI Interface**:
@@ -33,10 +38,33 @@
 
 ---
 
+## Project Architecture
+
+```
+osint-master/
+├── go.mod
+├── go.sum
+├── main.go                       # CLI entrypoint and subcommand router
+└── src/
+    ├── lib/
+    │   ├── clone_output.go       # Multi-writer stdout redirection utility
+    │   └── print_if_set.go       # Conditional formatted output helper
+    ├── options/
+    │   └── options.go            # Argument extraction and parsing logic
+    └── tools/
+        └── socialmedia/
+            ├── github.go         # GitHub profile and event collector
+            ├── instagram.go      # Instagram profile scraper and parser
+            ├── linkedin.go       # Cookie-free public LinkedIn intelligence collector
+            └── socialmedia.go    # Subcommand handler for 'username'
+```
+
+---
+
 ## Prerequisites
 
 - [Go](https://go.dev/) (v1.22+ recommended, project targets Go 1.25)
-- Internet connection for fetching profile information and querying APIs
+- Internet connection for fetching profile information and querying public endpoints
 
 ---
 
@@ -78,7 +106,6 @@ osintmaster [COMMAND] ...args
 ```
 
 #### Global Arguments:
-
 - `-o <FileName>`: Mirror console output to the specified file.
 - `--help`: Display usage and help message.
 
@@ -86,7 +113,7 @@ osintmaster [COMMAND] ...args
 
 ### Username Reconnaissance (`username`)
 
-Search for account profiles and recent activity associated with a given username:
+Search for account profiles and recent activity across supported platforms for a given username:
 
 ```bash
 # Using go run:
@@ -100,40 +127,42 @@ go run main.go username <target_username>
 
 ```text
   - Github -
-Username: octocat
-Name: The Octocat
-Company: @github
-Location: San Francisco
-Blog: https://github.blog
-Followers: 24706
-Following: 9
-Public Repos: 8
-Created At: Jan 2011
+Username: satyanadella
+Name: Satya Nadella
+Bio: CEO of Microsoft
+Company: @Microsoft
+Location: Redmond, Washington
+Followers: 4662
+Following: 2
+Public Repos: 0
+Created At: May 2018
 Last Activity: N/A
 
   - Instagram -
-Username: octocat
-Verified false
+Username: satyanadella
+Full Name: Satya Nadella
+Bio: Chairman and CEO of Microsoft Corporation
+Verified: false
 Private: false
-Followers: 5
+Followers: 6
 Following: 0
-Posts: 3  - Instagram -
-Username: octocat
-Full Name: The Octocat
-Bio: Official Instagram profile of Octocat
-Verified: true
-Private: false
-Followers: 45.2K
-Following: 120
-Posts: 85
+Posts: 0
+Last Activity: N/A
+
+  - Linkedin -
+Username: satyanadella
+Full Name: Satya Nadella
+Headline: As chairman and CEO of Microsoft, I define my mission and that of my company as…
+Company: Microsoft
+Location: Redmond, Washington, United States
+Education: The University of Chicago Booth School of Business
+Followers: 12242786
+Connections: 500+
+URL: https://www.linkedin.com/in/satyanadella
 Last Activity:
- Type: Post
- Time: 2026-02-10 18:30:15 +0000 UTC
- URL: https://www.instagram.com/p/C_abc123/
-Last Activity:
- Type: Post
- Time: 2012-07-18 19:07:49.686 +0100 +01
- URL: https://www.instagram.com/p/NO1BdXHJ3a
+ Type: Article
+ Time: 2026-10-21 20:41:14 +0000 +00
+ URL: https://www.linkedin.com/pulse/my-annual-letter-building-frontier-ecosystem-satya-nadella-iujec
 ```
 
 ---
@@ -150,9 +179,20 @@ To save the scan results directly to a file while retaining terminal visibility:
 
 ## Roadmap & Planned Modules
 
-- [x] **`username`**: Social media profiling (GitHub, Instagram).
-- [ ] **`username` expansion**: Twitter/X, Reddit, LinkedIn, GitLab.
+- [x] **`username`**: Social media profiling
+  - [x] GitHub
+  - [x] Instagram
+  - [x] LinkedIn (Public, cookie-free)
+  - [ ] Twitter / X
+  - [ ] Reddit
+  - [ ] GitLab
 - [ ] **`ip`**: IP geolocation, ASN lookup, reverse DNS, and threat intelligence.
 - [ ] **`domain`**: WHOIS lookups, DNS enumeration, subdomain discovery, and SSL certificate inspection.
+- [ ] **JSON Export**: Structured output format (`--json`) for automated pipeline ingestion.
 
 ---
+
+## Disclaimer & Ethical Use
+
+> [!WARNING]
+> This tool is developed strictly for educational purposes, authorized security testing, and lawful digital investigation. Users are solely responsible for ensuring compliance with all applicable local, national, and international laws, as well as the terms of service of any third-party platforms queried. The authors assume no liability for misuse or damage caused by this software.
