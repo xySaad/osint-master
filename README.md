@@ -34,6 +34,9 @@
 - **Facebook Intelligence**:
   - Gathers public intelligence from public Facebook profiles and pages.
   - Extracts full name, bio/about section, follower count, "talking about" metrics, and canonical URL via link-preview metadata.
+- **X (Twitter) Intelligence**:
+  - Gathers public intelligence from X (formerly Twitter) profiles.
+  - Extracts display name, bio/description, location, follower/following counts, post count, account creation date, verification badge status, and canonical profile URL.
 - **Dual Output Streaming**:
   - Mirror scan results simultaneously to stdout and to an output file using the `-o` argument.
 - **Clean CLI Interface**:
@@ -60,7 +63,8 @@ osint-master/
             ├── github.go         # GitHub profile and event collector
             ├── instagram.go      # Instagram profile scraper and parser
             ├── linkedin.go       # Public LinkedIn intelligence collector
-            └── socialmedia.go    # Subcommand handler for 'username'
+            ├── socialmedia.go    # Subcommand handler for 'username'
+            └── x.go              # Public X (Twitter) intelligence collector
 ```
 
 ---
@@ -130,14 +134,15 @@ go run main.go username <target_username>
 
 #### Example Output:
 
-```text
+```bash
+$ go run . username satyanadella
   - Github -
 Username: satyanadella
 Name: Satya Nadella
 Bio: CEO of Microsoft
 Company: @Microsoft
 Location: Redmond, Washington
-Followers: 4662
+Followers: 4665
 Following: 2
 Public Repos: 0
 Created At: May 2018
@@ -147,7 +152,7 @@ Last Activity: N/A
 Username: satyanadella
 Full Name: Satya Nadella
 Bio: Chairman and CEO of Microsoft Corporation
-Verified: false
+Verified false
 Private: false
 Followers: 6
 Following: 0
@@ -161,21 +166,29 @@ Headline: As chairman and CEO of Microsoft, I define my mission and that of my c
 Company: Microsoft
 Location: Redmond, Washington, United States
 Education: The University of Chicago Booth School of Business
-Followers: 12242786
+Followers: 12254400
 Connections: 500+
 URL: https://www.linkedin.com/in/satyanadella
 Last Activity:
- Type: Article
- Time: 2026-10-21 20:41:14 +0000 +00
- URL: https://www.linkedin.com/pulse/my-annual-letter-building-frontier-ecosystem-satya-nadella-iujec
+ Type: Post
+ Time: 2026-10-23 16:29:08.068 +0000 UTC
+ URL: https://www.linkedin.com/posts/satyanadella_super-to-see-volkswagen-group-putting-copilot-activity-7519434747178049536-cvN-
 
   - Facebook -
-Username: zuck
-Name: Mark Zuckerberg
-Bio: Bringing the world closer together.
-Followers: 121,490,453
-Talking About: 1,073,805
-URL: https://www.facebook.com/zuck/
+Username: satyanadella
+Name: Satya Nadella
+URL: https://www.facebook.com/satya.nadella/
+
+  - X -
+Username: satyanadella
+Name: Satya Nadella
+Bio: Chairman and CEO at Microsoft
+Verified: true
+Followers: 9644511
+Following: 320
+Posts: 2413
+Joined: February 2009
+URL: https://x.com/satyanadella
 ```
 
 ---
@@ -197,7 +210,7 @@ To save the scan results directly to a file while retaining terminal visibility:
   - [x] Instagram
   - [x] LinkedIn
   - [x] Facebook
-  - [ ] Twitter / X
+  - [x] Twitter / X
   - [ ] Reddit
   - [ ] GitLab
 - [ ] **`ip`**: IP geolocation, ASN lookup, reverse DNS, and threat intelligence.
