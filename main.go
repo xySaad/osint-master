@@ -5,6 +5,7 @@ import (
 	"os"
 	"osintmaster/src/lib"
 	"osintmaster/src/options"
+	"osintmaster/src/tools/domain"
 	"osintmaster/src/tools/socialmedia"
 	"slices"
 )
@@ -53,7 +54,7 @@ func main() {
 	case "ip":
 		//
 	case "domain":
-		//
+		domain.ScanDNSAndSSl()
 	case "username":
 		socialmedia.ByUsername()
 	default:
