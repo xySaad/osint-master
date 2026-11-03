@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"osintmaster/src/lib"
-	"osintmaster/src/options"
 	"osintmaster/src/tools/domain"
 	"osintmaster/src/tools/socialmedia"
 	"slices"
@@ -24,13 +23,13 @@ Arguments:
 
 func main() {
 	if len(os.Args) == 2 {
-		if _, helpOption := options.GetOption("--help"); helpOption {
+		if _, helpOption := lib.GetOption("--help"); helpOption {
 			fmt.Fprint(os.Stdout, USAGE)
 			return
 		}
 	}
 
-	if outputFilePath, dashO := options.GetOption("-o"); dashO {
+	if outputFilePath, dashO := lib.GetOption("-o"); dashO {
 		if outputFilePath == "" {
 			fmt.Fprint(os.Stderr, INVALID_COMMAND_USAGE)
 			return
@@ -54,9 +53,9 @@ func main() {
 	case "ip":
 		//
 	case "domain":
-		domain.ScanDNSAndSSl()
+		domain.Cmd()
 	case "username":
-		socialmedia.ByUsername()
+		socialmedia.Cmd()
 	default:
 		fmt.Fprint(os.Stderr, INVALID_COMMAND_USAGE)
 	}

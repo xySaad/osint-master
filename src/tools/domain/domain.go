@@ -1,33 +1,62 @@
 package domain
 
 import (
+	"bufio"
 	"fmt"
+	"net"
 	"os"
-	"osintmaster/src/options"
+	"sync"
 )
 
-const INVALID_COMMAND_USAGE = `Error: Invalid usage
-` + USAGE
+const DEFAULT_CONCURRENCY = 30
 
-const USAGE = `Usage: 
-    osintmaster domain <subdomain.domain.tld>
-Arguments:
-    -o <FileName> Output destination
-    --help Show help message
-`
+func ScanDNSAndSSL(domain string, wordList *string) {
+	addrs, err := net.LookupHost(domain)
+	if err != nil {
+		if dnsErr, ok := err.(*net.DNSError); !ok || !dnsErr.IsNotFound {
+			fmt.Printf("domain lookup error (%s): %v\n", domain, err)
+		}
+		return
+	}
+	details, err := getSSLDetails(domain)
+	if err != nil {
+		if dnsErr, ok := err.(*net.DNSError); !ok || !dnsErr.IsNotFound {
+			fmt.Println(domain, addrs, "\nssl details error:", err, "\n")
+		}
+	} else {
+		fmt.Printf("%s %s\n%s\n", domain, addrs, details)
+	}
 
-func ScanDNSAndSSl() {
-	if _, helpOption := options.GetOption("--help"); helpOption {
-		fmt.Fprint(os.Stdout, USAGE)
+	if wordList == nil {
 		return
 	}
 
-	if len(os.Args) < 2 {
-		fmt.Fprint(os.Stderr, INVALID_COMMAND_USAGE)
+	file, err := os.Open(*wordList)
+	if err != nil {
+		fmt.Printf("Error opening wordlist: %v", err)
 		return
 	}
+	defer file.Close()
 
-	domain := os.Args[1]
-	printSSLDetails(domain)
+	scanner := bufio.NewScanner(file)
+	lock := make(chan struct{}, DEFAULT_CONCURRENCY)
+	var wg sync.WaitGroup
+	for scanner.Scan() {
+		if scanner.Err() != nil {
+			fmt.Println(err)
+			return
+		}
+		subdomain := scanner.Text() + "." + domain
+		wg.Add(1)
+		go func() {
+			lock <- struct{}{}
+			defer func() { wg.Done(); <-lock }()
+			ScanDNSAndSSL(subdomain, nil)
+		}()
+	}
+	wg.Wait()
 
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading wordlist:", err)
+	}
 }

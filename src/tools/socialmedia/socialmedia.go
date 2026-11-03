@@ -3,7 +3,7 @@ package socialmedia
 import (
 	"fmt"
 	"os"
-	"osintmaster/src/options"
+	"osintmaster/src/lib"
 	"time"
 )
 
@@ -23,8 +23,8 @@ Arguments:
     --help Show help message
 `
 
-func ByUsername() {
-	if _, helpOption := options.GetOption("--help"); helpOption {
+func Cmd() {
+	if _, helpOption := lib.GetOption("--help"); helpOption {
 		fmt.Fprint(os.Stdout, USAGE)
 		return
 	}
