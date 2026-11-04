@@ -5,25 +5,23 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"reflect"
 	"sync"
 )
 
 const DEFAULT_CONCURRENCY = 30
 
-func ScanDNSAndSSL(domain string, wordList *string) {
+func scanDomain(domain string, wordList *string, fingerprints []Fingerprint) {
+	printPotentialTakeover(domain, fingerprints)
 	addrs, err := net.LookupHost(domain)
 	if err != nil {
-		if dnsErr, ok := err.(*net.DNSError); !ok || !dnsErr.IsNotFound {
-			fmt.Printf("domain lookup error (%s): %v\n", domain, err)
+		if _, ok := err.(*net.DNSError); !ok {
+			fmt.Printf("domain lookup error (%s): %s\n", domain, reflect.TypeOf(err))
 		}
 		return
 	}
 	details, err := getSSLDetails(domain)
-	if err != nil {
-		if dnsErr, ok := err.(*net.DNSError); !ok || !dnsErr.IsNotFound {
-			fmt.Println(domain, addrs, "\nssl details error:", err, "\n")
-		}
-	} else {
+	if err == nil {
 		fmt.Printf("%s %s\n%s\n", domain, addrs, details)
 	}
 
@@ -51,7 +49,7 @@ func ScanDNSAndSSL(domain string, wordList *string) {
 		go func() {
 			lock <- struct{}{}
 			defer func() { wg.Done(); <-lock }()
-			ScanDNSAndSSL(subdomain, nil)
+			scanDomain(subdomain, nil, fingerprints)
 		}()
 	}
 	wg.Wait()

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"osintmaster/src/lib"
@@ -27,12 +28,33 @@ func Cmd() {
 		return
 	}
 
-	domain := os.Args[1]
-	var wordlist *string = nil
-	if len(os.Args) > 2 {
-		tmp := os.Args[2]
-		wordlist = &tmp
+	if len(os.Args) > 4 {
+		fmt.Fprint(os.Stderr, INVALID_COMMAND_USAGE)
+		return
 	}
 
-	ScanDNSAndSSL(domain, wordlist)
+	domain := os.Args[1]
+	wordlist := "src/assets/subdomains.txt"
+	fingerprints := "src/assets/fingerprints.json"
+	if len(os.Args) > 2 {
+		wordlist = os.Args[2]
+	}
+	if len(os.Args) > 3 {
+		fingerprints = os.Args[3]
+
+	}
+
+	data, err := os.ReadFile(fingerprints)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading fingerprints: %v\n", err)
+		return
+	}
+
+	var fps []Fingerprint
+	if err := json.Unmarshal(data, &fps); err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing fingerprints: %v\n", err)
+		return
+	}
+
+	scanDomain(domain, &wordlist, fps)
 }
