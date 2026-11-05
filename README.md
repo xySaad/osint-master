@@ -173,6 +173,55 @@ DNS Names: [custom.github.io]
 
 ---
 
+### `ip`
+
+Retrieves geolocation data and ISP details using `ip-api.com` and checks for historical data associated with the IP using `otx.alienvault.com/api`.
+
+#### Syntax
+
+```bash
+./osintmaster ip <ip_address> [-o <FileName>]
+```
+
+#### Arguments & Options
+
+| Argument / Option | Required | Description                       |
+| ----------------- | -------- | --------------------------------- |
+| `<ip_address>`    | Yes      | Target IP address (IPv4 or IPv6). |
+
+#### Examples
+
+```bash
+# Lookup an IP address
+./osintmaster ip 8.8.8.8
+
+# Save output to a file
+./osintmaster ip 8.8.8.8 -o ip_scan.txt
+```
+
+#### Example Output
+
+```text
+$ ./osintmaster ip 8.8.8.8
+  - Geolocation -
+Country: United States
+Region: Virginia
+City: Ashburn
+Latitude: 39.03
+Longitude: -77.5
+Timezone: America/New_York
+
+  - ISP Details -
+ISP: Google LLC
+Organization: Google Public DNS
+AS: AS15169 Google LLC
+
+  - Historical Abuse Data -
+Historical Reports: 0
+```
+
+---
+
 ## Disclaimer & Ethical Use
 
 > [WARNING]

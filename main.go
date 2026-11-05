@@ -5,6 +5,7 @@ import (
 	"os"
 	"osintmaster/src/lib"
 	"osintmaster/src/tools/domain"
+	"osintmaster/src/tools/ip"
 	"osintmaster/src/tools/socialmedia"
 	"slices"
 )
@@ -51,7 +52,7 @@ func main() {
 	os.Args = slices.Delete(os.Args, 1, 2)
 	switch subcommand {
 	case "ip":
-		//
+		ip.Cmd()
 	case "domain":
 		domain.Cmd()
 	case "username":
