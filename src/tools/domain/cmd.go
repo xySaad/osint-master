@@ -11,7 +11,7 @@ const INVALID_COMMAND_USAGE = `Error: Invalid usage
 ` + USAGE
 
 const USAGE = `Usage: 
-    osintmaster domain <subdomain.domain.tld> <wordlist.txt>
+    osintmaster domain <domain.tld> [subdomains.txt] [fingerprints.json]
 Arguments:
     -o <FileName> Output destination
     --help Show help message
