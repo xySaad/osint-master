@@ -177,6 +177,11 @@ DNS Names: [custom.github.io]
 
 Retrieves geolocation data and ISP details using `ip-api.com` and checks for historical data associated with the IP using `otx.alienvault.com/api`.
 
+#### Limitations
+
+`ip-api.com` is limited to 45 requests per minute.
+`otx.alienvault.com/api` is limited to 10–20 requests per minute.
+
 #### Syntax
 
 ```bash
