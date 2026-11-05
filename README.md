@@ -1,141 +1,67 @@
 # OSINT Master
 
-**OSINT Master** (`osintmaster`) is a modular Open Source Intelligence (OSINT) command-line tool written in Go. It is designed to assist security analysts, penetration testers, and investigators in gathering publicly available information across platforms, including social media profile reconnaissance and activity tracking.
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Project Architecture](#project-architecture)
-- [Prerequisites](#prerequisites)
-- [Installation & Build](#installation--build)
-- [Usage](#usage)
-  - [Global Syntax](#global-syntax)
-  - [Username Reconnaissance (`username`)](#username-reconnaissance-username)
-  - [File Output (`-o`)](#file-output--o)
-- [Roadmap & Planned Modules](#roadmap--planned-modules)
-- [Disclaimer & Ethical Use](#disclaimer--ethical-use)
-
----
-
-## Features
-
-- **GitHub Intelligence**:
-  - Retrieves profile details: display name, email, bio, company, location, blog/website, Twitter handle, follower/following counts, public repository count, and account creation date.
-  - Identifies recent public activity (Push events, Pull Requests, Comments, Releases, Issues, etc.) including direct links and timestamps.
-- **Instagram Intelligence**:
-  - Retrieves profile metadata: full name, biography, verified badge status, account privacy status (`is_private`), post count, and follower/following metrics.
-  - Extracts latest activity (post/video links and approximate timestamp resolved from Instagram snowflake IDs).
-- **LinkedIn Intelligence**:
-  - Gathers public intelligence.
-  - Extracts profile information: full name, headline, current company (`worksFor`), location, education (`alumniOf`), follower count, connection count, and public profile URL.
-  - Retrieves latest public activity (posts or published articles, publication time, and article/post URL) via structured Schema.org JSON-LD parsing.
-- **Facebook Intelligence**:
-  - Gathers public intelligence from public Facebook profiles and pages.
-  - Extracts full name, bio/about section, follower count, "talking about" metrics, and canonical URL via link-preview metadata.
-- **X (Twitter) Intelligence**:
-  - Gathers public intelligence from X (formerly Twitter) profiles.
-  - Extracts display name, bio/description, location, follower/following counts, post count, account creation date, verification badge status, and canonical profile URL.
-- **Dual Output Streaming**:
-  - Mirror scan results simultaneously to stdout and to an output file using the `-o` argument.
-- **Clean CLI Interface**:
-  - Intuitive subcommand and argument parsing.
-
----
-
-## Project Architecture
-
-```
-osint-master/
-├── go.mod
-├── go.sum
-├── main.go                       # CLI entrypoint and subcommand router
-└── src/
-    ├── lib/
-    │   ├── clone_output.go       # Multi-writer stdout redirection utility
-    │   └── print_if_set.go       # Conditional formatted output helper
-    ├── options/
-    │   └── options.go            # Argument extraction and parsing logic
-    └── tools/
-        └── socialmedia/
-            ├── facebook.go       # Public Facebook intelligence collector
-            ├── github.go         # GitHub profile and event collector
-            ├── instagram.go      # Instagram profile scraper and parser
-            ├── linkedin.go       # Public LinkedIn intelligence collector
-            ├── socialmedia.go    # Subcommand handler for 'username'
-            └── x.go              # Public X (Twitter) intelligence collector
-```
+**OSINT Master** (`osintmaster`) is a modular Open Source Intelligence (OSINT) command-line tool written in Go for gathering public information across social media platforms and domain infrastructure.
 
 ---
 
 ## Prerequisites
 
-- [Go](https://go.dev/) (v1.22+ recommended, project targets Go 1.25)
-- Internet connection for fetching profile information and querying public endpoints
+- [Go](https://go.dev/) (v1.22+)
 
 ---
 
-## Installation & Build
-
-### 1. Clone the repository
+## Setup
 
 ```bash
-git clone https://github.com/zone01oujda/osint-master.git
+# Clone the repository
+git clone https://github.com/xySaad/osint-master
 cd osint-master
-```
 
-### 2. Download dependencies
-
-```bash
+# Download dependencies
 go mod download
-```
 
-### 3. Build binary
-
-```bash
+# Build binary
 go build -o osintmaster main.go
-```
-
-You can now run `./osintmaster` directly or install it globally to your `$GOPATH/bin`:
-
-```bash
-go install
 ```
 
 ---
 
 ## Usage
 
-### Global Syntax
-
 ```bash
-osintmaster [COMMAND] ...args
+./osintmaster [command] [arguments] [options]
 ```
 
-#### Global Arguments:
+### Global Options
 
-- `-o <FileName>`: Mirror console output to the specified file.
-- `--help`: Display usage and help message.
+- `-o <FileName>`: Save output to a file while displaying it in the terminal.
+- `--help`: Show help and usage information.
 
 ---
 
-### Username Reconnaissance (`username`)
+### `username`
 
-Search for account profiles and recent activity across supported platforms for a given username:
+Searches public profiles and activity across GitHub, Instagram, LinkedIn, Facebook, and X (Twitter).
+
+#### Syntax
 
 ```bash
-# Using go run:
-go run main.go username <target_username>
-
-# Or with compiled binary:
-./osintmaster username <target_username>
+./osintmaster username <target_username> [-o <FileName>]
 ```
 
-#### Example Output:
+#### Arguments & Options
+
+| Argument / Option   | Required | Description                                    |
+| ------------------- | -------- | ---------------------------------------------- |
+| `<target_username>` | Yes      | Username to search across supported platforms. |
+
+#### Example
 
 ```bash
-$ go run . username satyanadella
+./osintmaster username satyanadella
+```
+
+```text
   - Github -
 Username: satyanadella
 Name: Satya Nadella
@@ -172,7 +98,7 @@ URL: https://www.linkedin.com/in/satyanadella
 Last Activity:
  Type: Post
  Time: 2026-10-23 16:29:08.068 +0000 UTC
- URL: https://www.linkedin.com/posts/satyanadella_super-to-see-volkswagen-group-putting-copilot-activity-7519434747178049536-cvN-
+ URL: https://www.linkedin.com/posts/satyanadella_...
 
   - Facebook -
 Username: satyanadella
@@ -193,33 +119,61 @@ URL: https://x.com/satyanadella
 
 ---
 
-### File Output (`-o`)
+### `domain`
 
-To save the scan results directly to a file while retaining terminal visibility:
+Performs subdomain enumeration, DNS resolution, SSL/TLS certificate inspection, and subdomain takeover detection.
+
+#### Syntax
 
 ```bash
-./osintmaster username <target_username> -o report.txt
+./osintmaster domain <domain> [wordlist.txt] [fingerprints.json] [-o <FileName>]
 ```
 
----
+#### Arguments & Options
 
-## Roadmap & Planned Modules
+| Argument / Option     | Required | Description                                                                       |
+| --------------------- | -------- | --------------------------------------------------------------------------------- |
+| `<domain>`            | Yes      | Target domain to scan (e.g. `example.com`).                                       |
+| `[wordlist.txt]`      | No       | Custom wordlist for subdomain discovery _(default: `src/assets/subdomains.txt`)_. |
+| `[fingerprints.json]` | No       | Custom takeover fingerprints file _(default: `src/assets/fingerprints.json`)_.    |
 
-- [x] **`username`**: Social media profiling
-  - [x] GitHub
-  - [x] Instagram
-  - [x] LinkedIn
-  - [x] Facebook
-  - [x] Twitter / X
-  - [ ] Reddit
-  - [ ] GitLab
-- [ ] **`ip`**: IP geolocation, ASN lookup, reverse DNS, and threat intelligence.
-- [ ] **`domain`**: WHOIS lookups, DNS enumeration, subdomain discovery, and SSL certificate inspection.
-- [ ] **JSON Export**: Structured output format (`--json`) for automated pipeline ingestion.
+#### Examples
+
+```bash
+# Scan a domain using default wordlist and fingerprints
+./osintmaster domain example.com
+
+# Scan with a custom wordlist
+./osintmaster domain example.com custom_wordlist.txt
+
+# Scan with custom wordlist and custom fingerprints
+./osintmaster domain example.com custom_wordlist.txt custom_fingerprints.json
+
+# Save output to a file
+./osintmaster domain example.com -o domain_scan.txt
+```
+
+#### Example Output
+
+```text
+$ ./osintmaster domain example.com
+example.com [172.66.147.243 104.20.23.154 2606:4700:10::ac42:93f3 2606:4700:10::6814:179a]
+2026-09-26 -> 2026-12-25 / 50 days left
+Subject: CN=example.com
+Issuer: CN=Cloudflare TLS Issuing ECC CA 3,O=SSL Corporation,C=US
+DNS Names: [example.com *.example.com]
+
+[POTENTIAL TAKEOVER] blog.example.com -> custom.github.io (Service: github)
+blog.example.com [185.199.108.153 185.199.109.153]
+2026-01-10 -> 2026-04-10 / 65 days left
+Subject: CN=custom.github.io
+Issuer: CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1,O=DigiCert Inc,C=US
+DNS Names: [custom.github.io]
+```
 
 ---
 
 ## Disclaimer & Ethical Use
 
-> [!WARNING]
-> This tool is developed strictly for educational purposes, authorized security testing, and lawful digital investigation. Users are solely responsible for ensuring compliance with all applicable local, national, and international laws, as well as the terms of service of any third-party platforms queried. The authors assume no liability for misuse or damage caused by this software.
+> [WARNING]
+> This tool is developed strictly for educational purposes, authorized security testing, and lawful digital investigation. Users are solely responsible for ensuring compliance with all applicable local, national, and international laws. The authors assume no liability for misuse or damage caused by this software.
